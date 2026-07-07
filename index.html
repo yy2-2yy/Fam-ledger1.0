@@ -1,0 +1,178 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="theme-color" content="#f7f3ea" />
+    <title>家庭周记账</title>
+    <link rel="icon" href="icon.svg" type="image/svg+xml" />
+    <link rel="manifest" href="manifest.webmanifest" />
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <div class="app-shell">
+      <header class="topbar">
+        <div>
+          <p class="eyebrow">本地账本</p>
+          <h1>家庭周记账</h1>
+        </div>
+        <div class="topbar-actions">
+          <button class="icon-button" id="exportJsonBtn" type="button" title="导出备份" aria-label="导出备份">
+            <span aria-hidden="true">⬇</span>
+          </button>
+          <label class="icon-button file-button" title="导入备份" aria-label="导入备份">
+            <span aria-hidden="true">⬆</span>
+            <input id="importJsonInput" type="file" accept=".json,application/json" />
+          </label>
+        </div>
+      </header>
+
+      <main>
+        <section class="summary-band" aria-label="账本概览">
+          <div>
+            <span>当前范围</span>
+            <strong id="rangeLabel">本周</strong>
+          </div>
+          <div>
+            <span>总消费</span>
+            <strong id="totalSpend">¥0.00</strong>
+          </div>
+          <div>
+            <span>记录数</span>
+            <strong id="recordCount">0</strong>
+          </div>
+        </section>
+
+        <nav class="tabs" aria-label="主要页面">
+          <button class="tab active" type="button" data-view="organize">整理</button>
+          <button class="tab" type="button" data-view="trends">趋势</button>
+          <button class="tab" type="button" data-view="categories">分类</button>
+          <button class="tab" type="button" data-view="backup">备份</button>
+        </nav>
+
+        <section class="view active" id="organizeView">
+          <div class="section-header">
+            <div>
+              <h2>本周整理</h2>
+              <p>手动添加，或粘贴微信/支付宝账单文本后确认分类。</p>
+            </div>
+          </div>
+
+          <form class="entry-form" id="entryForm">
+            <div class="field-grid">
+              <label>
+                日期
+                <input id="entryDate" type="date" required />
+              </label>
+              <label>
+                金额
+                <input id="entryAmount" type="number" min="0.01" step="0.01" placeholder="0.00" required />
+              </label>
+              <label>
+                来源
+                <select id="entrySource">
+                  <option value="支付宝">支付宝</option>
+                  <option value="微信">微信</option>
+                  <option value="现金">现金</option>
+                  <option value="银行卡">银行卡</option>
+                  <option value="其他">其他</option>
+                </select>
+              </label>
+              <label>
+                分类
+                <select id="entryCategory" required></select>
+              </label>
+            </div>
+            <label>
+              商户/备注
+              <input id="entryMerchant" type="text" placeholder="例如：菜市场、盒马、地铁" />
+            </label>
+            <button class="primary-button" type="submit">添加记录</button>
+          </form>
+
+          <div class="import-panel">
+            <div class="panel-title">
+              <h3>粘贴账单</h3>
+              <button id="parsePasteBtn" class="secondary-button" type="button">解析文本</button>
+            </div>
+            <textarea id="pasteArea" rows="5" placeholder="可粘贴包含日期、金额、商户的账单文本。例：2026-07-06 盒马 ¥86.50"></textarea>
+            <div id="pendingList" class="pending-list" aria-live="polite"></div>
+          </div>
+
+          <div class="records-panel">
+            <div class="panel-title">
+              <h3>记录</h3>
+              <select id="recordRange">
+                <option value="week">本周</option>
+                <option value="month">本月</option>
+                <option value="all">全部</option>
+              </select>
+            </div>
+            <div id="recordsList" class="records-list"></div>
+          </div>
+        </section>
+
+        <section class="view" id="trendsView">
+          <div class="section-header">
+            <div>
+              <h2>消费趋势</h2>
+              <p>按天汇总总消费，也可以多选分类查看变化。</p>
+            </div>
+            <div class="segmented" role="group" aria-label="图表范围">
+              <button class="range-button active" data-chart-range="week" type="button">周</button>
+              <button class="range-button" data-chart-range="month" type="button">月</button>
+            </div>
+          </div>
+
+          <div class="chart-toolbar">
+            <label class="checkbox-pill">
+              <input id="showTotalLine" type="checkbox" checked />
+              总消费
+            </label>
+            <div id="chartCategoryFilters" class="category-filters"></div>
+          </div>
+
+          <div class="chart-wrap">
+            <canvas id="trendChart" width="900" height="460"></canvas>
+          </div>
+          <div id="chartLegend" class="chart-legend"></div>
+        </section>
+
+        <section class="view" id="categoriesView">
+          <div class="section-header">
+            <div>
+              <h2>自定义分类</h2>
+              <p>隐藏分类后不再用于新记录，历史记录仍会保留。</p>
+            </div>
+          </div>
+          <form id="categoryForm" class="category-form">
+            <input id="categoryName" type="text" placeholder="新分类名称" required />
+            <input id="categoryColor" type="color" value="#4f7cac" aria-label="分类颜色" />
+            <button class="primary-button" type="submit">新增分类</button>
+          </form>
+          <div id="categoryList" class="category-list"></div>
+        </section>
+
+        <section class="view" id="backupView">
+          <div class="section-header">
+            <div>
+              <h2>备份与恢复</h2>
+              <p>数据只保存在本机浏览器，建议定期导出备份。</p>
+            </div>
+          </div>
+          <div class="backup-actions">
+            <button id="exportCsvBtn" class="secondary-button" type="button">导出 CSV</button>
+            <button id="exportJsonBtn2" class="primary-button" type="button">导出完整备份</button>
+            <label class="secondary-button import-label">
+              导入完整备份
+              <input id="importJsonInput2" type="file" accept=".json,application/json" />
+            </label>
+          </div>
+          <button id="clearDataBtn" class="danger-button" type="button">清空本地数据</button>
+        </section>
+      </main>
+    </div>
+
+    <script src="app.js" type="module"></script>
+  </body>
+</html>
