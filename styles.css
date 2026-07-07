@@ -20,6 +20,11 @@
   box-sizing: border-box;
 }
 
+html {
+  -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
+}
+
 body {
   margin: 0;
   min-height: 100vh;
@@ -39,6 +44,21 @@ textarea {
 
 button {
   outline: none;
+}
+
+input[type="checkbox"] {
+  width: 18px;
+  height: 18px;
+  flex: 0 0 18px;
+  margin: 0;
+  accent-color: var(--accent);
+}
+
+input[type="color"] {
+  width: 56px;
+  height: 42px;
+  min-width: 56px;
+  padding: 4px;
 }
 
 button:focus-visible,
@@ -469,6 +489,64 @@ canvas {
   .category-form,
   .category-edit {
     grid-template-columns: 1fr;
+  }
+
+  .topbar-actions {
+    flex-wrap: nowrap;
+  }
+
+  .section-header {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+  }
+
+  .section-header p {
+    max-width: 100%;
+  }
+
+  .chart-toolbar {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 10px;
+  }
+
+  .chart-toolbar > .checkbox-pill {
+    justify-self: start;
+  }
+
+  .category-filters {
+    width: 100%;
+  }
+
+  .checkbox-pill {
+    max-width: none;
+    min-height: 40px;
+  }
+
+  .chart-wrap {
+    padding: 8px 6px;
+  }
+
+  .category-item {
+    grid-template-columns: 28px minmax(0, 1fr);
+    align-items: start;
+  }
+
+  .category-item > .delete-button {
+    grid-column: 2;
+    width: 100%;
+  }
+
+  .category-edit {
+    min-width: 0;
+  }
+
+  .category-edit .checkbox-pill {
+    justify-content: flex-start;
+  }
+
+  input[type="color"] {
+    width: 100%;
   }
 
   .tabs {

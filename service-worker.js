@@ -1,4 +1,4 @@
-const CACHE = "family-ledger-v4";
+const CACHE = "family-ledger-v5";
 const ASSETS = ["./", "./index.html", "./styles.css", "./app.js", "./manifest.webmanifest", "./icon.svg"];
 
 self.addEventListener("install", (event) => {
